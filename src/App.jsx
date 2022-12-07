@@ -2,15 +2,17 @@ import { useEffect, useState } from "react";
 import "./App.css";
 
 const INITIAL_LENGTH = 4;
-const CELL_SIZE = 10;
-const CELLS = 50;
+const CELL_SIZE = 16;
+const CELLS = 40;
 const BOARD_SIZE = CELLS * CELL_SIZE;
+const initialSnake = Array.from({ length: INITIAL_LENGTH }, () => [0, 0]);
+const randomCell = () => Math.floor(Math.random() * CELLS) * CELL_SIZE;
 
 export default function App() {
-  const [snake, setSnake] = useState(
-    Array.from({ length: INITIAL_LENGTH }, () => [0, 0])
-  );
-  const [dirLen, setDirLen] = useState([]);
+  const [snake, setSnake] = useState(initialSnake);
+  const [dirLen, setDirLen] = useState([1, CELL_SIZE]);
+  const [apple, setApple] = useState([randomCell(), randomCell()]);
+  const [score, setScore] = useState(0);
 
   useEffect(() => {
     window.addEventListener("keydown", (e) => {
@@ -27,21 +29,44 @@ export default function App() {
     });
   }, []);
 
+  //Move the snake
   useEffect(() => {
     const timerId = setTimeout(() => {
       const head = [...snake.at(-1)];
       const [dir, len] = dirLen;
       head[dir] = (head[dir] + len + BOARD_SIZE) % BOARD_SIZE;
       setSnake([...snake.slice(1), head]);
-    }, 100);
+    }, 100 / (1 + score / 5));
     return () => clearTimeout(timerId);
-  }, [snake, dirLen]);
+  }, [snake, dirLen, score]);
+
+  //Handle eating
+  useEffect(() => {
+    const head = snake.at(-1);
+    if (head[0] === apple[0] && head[1] === apple[1]) {
+      setScore(score + 1);
+      setApple([randomCell(), randomCell()]);
+
+      const tail = [...snake[0]];
+      const [dir, len] = dirLen;
+      tail[dir] -= len;
+      setSnake([tail, ...snake]);
+    }
+  }, [snake, apple, score, dirLen]);
 
   return (
-    <>
-      {snake.map(([top, left], i) => (
-        <div key={i} className="snake" style={{ top, left }} />
-      ))}
-    </>
+      <main className="playground">
+      <h1>
+        Use the arrow keys to start the game and move the snake
+      </h1>
+      <h3>score {score}</h3>
+        {snake.map(([top, left], i) => (
+          <div key={i} className="circle snake" style={{ top, left }} />
+        ))}
+        <div
+          className="circle apple"
+          style={{ top: apple[0], left: apple[1] }}
+        />
+      </main>
   );
 }

@@ -1,6 +1,29 @@
-.snake {
+.playground {
+  --board-size: 640px;
+  --cell-size: 12px;
+}
+
+.playground {
   position: absolute;
-  width: 8px;
-  height: 8px;
-  background: black;
+  left: 50%;
+  top: 25%;
+  transform: translate(-50%, -25%);
+  width: var(--board-size);
+  height: var(--board-size);
+  border: solid 4px black;
+}
+
+.circle {
+  position: absolute;
+  width: var(--cell-size);
+  height: var(--cell-size);
+  border-radius: 50%;
+}
+
+.snake {
+  background-color: black;
+}
+
+.apple {
+  background-color: red;
 }
