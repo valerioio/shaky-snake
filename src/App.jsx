@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { v4 as uuidv4 } from 'uuid';
 import "./App.css";
 
 const INITIAL_LENGTH = 4;
@@ -18,46 +19,79 @@ export default function App() {
   const [dirLen, setDirLen] = useState([1, CELL_SIZE]);
   const [apple, setApple] = useState([randomCoord(), randomCoord()]);
   const [score, setScore] = useState(0);
+  const [bump, setBump] = useState(-1);
+
+  function handleKeydown(e) {
+    if (e.key === "ArrowRight" && dirLen[0] === 0) {
+      setDirLen([1, CELL_SIZE]);
+    } else if (e.key === "ArrowDown" && dirLen[0] === 1) {
+      setDirLen([0, CELL_SIZE]);
+    } else if (e.key === "ArrowLeft" && dirLen[0] === 0) {
+      setDirLen([1, -CELL_SIZE]);
+    } else if (e.key === "ArrowUp" && dirLen[0] === 1) {
+      setDirLen([0, -CELL_SIZE]);
+    }
+  }
+
+  const snakeStyles = (top, left, i) => {
+    return {
+      top: top + Math.random() * 2 + (i === bump - 1 ? -2 : 0),
+      left: left + Math.random() * 2 + (i === bump - 1 ? -2 : 0),
+      width: CELL_SIZE + (i === bump - 1 ? 0 : -4),
+      height: CELL_SIZE + (i === bump - 1 ? 0 : -4),
+    };
+  };
+
+  const appleStyles = {
+    top: apple[0],
+    left: apple[1],
+    width: CELL_SIZE - 4,
+    height: CELL_SIZE - 4,
+  };
 
   useEffect(() => {
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowRight") {
-        setDirLen([1, CELL_SIZE]);
-      } else if (e.key === "ArrowDown") {
-        setDirLen([0, CELL_SIZE]);
-      } else if (e.key === "ArrowLeft") {
-        setDirLen([1, -CELL_SIZE]);
-      } else if (e.key === "ArrowUp") {
-        setDirLen([0, -CELL_SIZE]);
-      }
-    });
-  }, []);
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  }, [dirLen]);
 
-  //Move the snake
+  //Handle movement
   useEffect(() => {
     const timerId = setTimeout(() => {
       const head = [...snake.at(-1)];
       const [dir, len] = dirLen;
       head[dir] = (head[dir] + len + BOARD_SIZE) % BOARD_SIZE;
       setSnake([...snake.slice(1), head]);
+      setBump(bump - 1);
     }, 100 / (1 + score / 5));
     return () => clearTimeout(timerId);
-  }, [snake, dirLen, score]);
+  }, [snake, bump]);
 
-  //Handle eating and game over
+  //Handle eating
   useEffect(() => {
     const head = snake.at(-1);
     if (overlap([head], apple)) {
       setScore(score + 1);
       setApple([randomCoord(), randomCoord()]);
-      const tail = [...snake[0]];
-      const [dir, len] = dirLen;
-      tail[dir] -= len;
-      setSnake([tail, ...snake]);
+      setBump(snake.length);
     }
+  }, [snake]);
+  // setIsGameOver(overlap(snake.slice(0, -1), head));
 
-    // setIsGameOver(overlap(snake.slice(0, -1), head));
-  }, [snake, apple, score, dirLen]);
+  //Handle growing
+  useEffect(() => {
+    if (!bump) {
+      const [[x1, y1], [x2, y2]] = snake;
+      setSnake([
+        [
+          (2 * x1 - x2 + BOARD_SIZE) % BOARD_SIZE,
+          (2 * y1 - y2 + BOARD_SIZE) % BOARD_SIZE,
+        ],
+        ...snake,
+      ]);
+    }
+  }, [bump]);
 
   return (
     <>
@@ -67,19 +101,9 @@ export default function App() {
       <h3 className="score">score {score}</h3>
       <main className="playground">
         {snake.map(([top, left], i) => (
-          <div
-            key={i}
-            className="circle snake"
-            style={{
-              top: top + Math.random() * 2,
-              left: left + Math.random() * 2,
-            }}
-          />
+          <div key={uuidv4()} className="snake" style={snakeStyles(top, left, i)} />
         ))}
-        <div
-          className="circle apple"
-          style={{ top: apple[0], left: apple[1] }}
-        />
+        <div className="apple" style={appleStyles} />
       </main>
     </>
   );

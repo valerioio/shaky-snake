@@ -3,8 +3,7 @@ body {
 }
 
 .playground {
-  --board-size: 640px;
-  --cell-size: 12px;
+  --board-size: 636px;
 }
 
 .playground {
@@ -18,18 +17,16 @@ body {
   background-color: white;
 }
 
-.circle {
-  position: absolute;
-  width: var(--cell-size);
-  height: var(--cell-size);
-  border-radius: 50%;
-}
-
 .snake {
-  background-color: black;
+  position: absolute;
+  border-radius: 50%;
+  background-color: #040;
+  z-index: 1;
 }
 
 .apple {
+  position: absolute;
+  border-radius: 50%;
   background-color: red;
 }
 
@@ -41,7 +38,7 @@ body {
   width: 100vw;
   padding: 5vh 10vw;
   font-size: 3rem;
-  z-index: 1;
+  z-index: 2;
   background-color: lightgray;
 }
 
