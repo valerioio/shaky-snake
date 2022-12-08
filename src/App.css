@@ -2,8 +2,12 @@ body {
   background-color: beige;
 }
 
+body * {
+  font-family: monospace;
+}
+
 .playground {
-  --board-size: 636px;
+  --board-size: 596px;
 }
 
 .playground {
@@ -21,7 +25,6 @@ body {
   position: absolute;
   border-radius: 50%;
   background-color: #040;
-  z-index: 1;
 }
 
 .apple {
@@ -37,9 +40,10 @@ body {
   box-sizing: border-box;
   width: 100vw;
   padding: 5vh 10vw;
-  font-size: 3rem;
-  z-index: 2;
-  background-color: lightgray;
+  text-align: center;
+  font-size: 2.5rem;
+  z-index: 1;
+  background-color: #ddd;
 }
 
 .hidden {
@@ -56,5 +60,16 @@ body {
   padding: 0 0.5rem;
   background-color: orange;
   border: solid 2px black;
-  border-radius: 10%;
+}
+
+.start-button {
+  position: absolute;
+  left: 50%;
+  top: 92.5%;
+  transform: translate(-50%, -92.5%);
+  padding: 0 0.5rem;
+  background-color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  border: solid 2px black;
 }
